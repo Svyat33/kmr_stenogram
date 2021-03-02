@@ -1,9 +1,14 @@
 from time import sleep
 
-def check_page():
-    pass
+import http.server
+import socketserver
+
+PORT = 8000
+Handler = http.server.SimpleHTTPRequestHandler
+
+
 
 if __name__ == '__main__':
-    while True:
-        check_page()
-        sleep(60)
+    with socketserver.TCPServer(("", PORT), Handler) as http:
+        print("serving at port", PORT)
+        http.serve_forever()
