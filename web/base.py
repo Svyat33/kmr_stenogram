@@ -2,7 +2,8 @@ logging = {
     'version': 1,
     'formatters': {
         'detail': {
-            'format': '{asctime} {levelname:5.5} [{process}] [{name}] [{threadName}] {message}',
+            'format': '{asctime} {levelname:5.5} [{process}] [{name}] '
+                      '[{threadName}] {message}',
             'style': '{'
         },
         'simple': {}
