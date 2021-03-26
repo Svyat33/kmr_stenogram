@@ -1,1 +1,11 @@
 requests
+redis
+aiohttp
+aiohttp-jinja2
+gunicorn
+jinja2
+pydantic
+lxml
+bs4
+pytest
+apscheduler
