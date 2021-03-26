@@ -1,2 +1,2 @@
-web: python web/main.py
+web: python main.py
 cronjob: python cron/task.py

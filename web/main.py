@@ -9,8 +9,7 @@ import jinja2
 import redis
 from aiohttp import web
 
-from config import base
-from route import configure_handlers, routes
+from .route import configure_handlers, routes
 
 logger = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -20,7 +19,7 @@ r = redis.from_url(os.environ.get("REDIS_URL", "redis://localhost:6379/1/"))
 my_redis = r.client()
 
 
-def build_app(loop=None):
+def build_app(base, loop=None):
     logging.config.dictConfig(base.logging)
     loop = loop or asyncio.get_event_loop()
     loop.set_debug(False)
@@ -54,8 +53,3 @@ def build_app(loop=None):
     application.on_shutdown.append(on_shutdown_close_conns)
 
     return application
-
-
-if __name__ == '__main__':
-    main = build_app()
-    web.run_app(main)

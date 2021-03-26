@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from handlers import index, tick
+from .handlers import index, tick
 
 
 Route = namedtuple('Route', ['name', 'method', 'path', 'handler'])
