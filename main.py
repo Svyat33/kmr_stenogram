@@ -2,8 +2,7 @@ import os
 
 from aiohttp import web
 
-from web import build_app, base
+from web import build_app
 
 if __name__ == '__main__':
-    main = build_app(base)
-    web.run_app(main, port=os.getenv('PORT', '8000'))
+    web.run_app(build_app(), port=os.getenv('PORT', '8000'))
