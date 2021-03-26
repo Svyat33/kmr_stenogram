@@ -2,8 +2,7 @@ import os
 
 from aiohttp import web
 
-from config import base
-from web.main import build_app
+from web import build_app, base
 
 if __name__ == '__main__':
     main = build_app(base)
