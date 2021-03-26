@@ -6,7 +6,6 @@ import os
 
 import aiohttp_jinja2
 import jinja2
-import redis
 from aiohttp import web
 
 from . import base
@@ -16,8 +15,8 @@ logger = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PORT = int(os.getenv('PORT', '8000'))
 Handler = http.server.SimpleHTTPRequestHandler
-r = redis.from_url(os.environ.get("REDIS_URL", "redis://localhost:6379/1/"))
-my_redis = r.client()
+# r = redis.from_url(os.environ.get("REDIS_URL", "redis://localhost:6379/1/"))
+# my_redis = r.client()
 
 
 async def build_app(loop=None):
