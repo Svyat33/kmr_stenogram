@@ -7,3 +7,7 @@ pydantic
 lxml
 bs4
 python-dotenv
+
+pytest
+pytest-cov
+coveralls

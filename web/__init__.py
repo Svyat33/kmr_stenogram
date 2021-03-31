@@ -5,18 +5,28 @@ import logging.config
 import os
 
 import aiohttp_jinja2
+import aioredis
 import jinja2
 from aiohttp import web
+from dotenv import load_dotenv
 
 from . import base
 from .route import configure_handlers, routes
 
 logger = logging.getLogger(__name__)
+load_dotenv(os.path.dirname(os.path.abspath(__file__)) + "/.env")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PORT = int(os.getenv('PORT', '8000'))
 Handler = http.server.SimpleHTTPRequestHandler
-# r = redis.from_url(os.environ.get("REDIS_URL", "redis://localhost:6379/1/"))
-# my_redis = r.client()
+
+
+async def connect_redis(app):
+    app['redis'] = await aioredis.create_redis_pool(
+        os.environ.get("REDIS_URL"))
+
+
+async def disconnect_redis(app):
+    app['redis'].close()
+    await app['redis'].wait_closed()
 
 
 async def build_app(loop=None):
@@ -29,8 +39,9 @@ async def build_app(loop=None):
     application = web.Application(
         middlewares=middlewares
     )
-    # static files
+    # connect to redis
 
+    # static files
     application.router.add_static('/static',
                                   os.path.join(BASE_DIR, '../static'))
     # templates
@@ -51,5 +62,6 @@ async def build_app(loop=None):
 
     application.connections = set()
     application.on_shutdown.append(on_shutdown_close_conns)
-
+    application.on_startup.append(connect_redis)
+    application.on_cleanup.append(disconnect_redis)
     return application

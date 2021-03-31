@@ -1,3 +1,6 @@
+import datetime
+import os
+
 from aiohttp.web import StreamResponse, HTTPNotAcceptable
 import aiohttp_jinja2
 import asyncio
@@ -6,14 +9,23 @@ import json
 import logging
 import time
 
-
 log = logging.getLogger(__name__)
 
 
 @aiohttp_jinja2.template('index.jinja2')
 async def index(request):
+    redis = request.app['redis']
+    last_run = int(await redis.get('last_work'))
+    print(os.getenv('LAST_DOC_KEY'))
+    lst = await redis.lrange(os.getenv('LAST_DOC_KEY'),
+                             0,
+                             int(os.getenv('LAST_DOC_COUNT')))
+    ret = []
+    for raw_doc in lst:
+        ret.append(json.loads(raw_doc.decode()))
     return {
-        'title': 'Web scrapper of miskrada documents',
+        'last_work': datetime.datetime.fromtimestamp(last_run),
+        'last_docs': ret
     }
 
 

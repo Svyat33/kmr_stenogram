@@ -1,16 +1,46 @@
+import asyncio
+import datetime
+import json
 import logging
+import os
+import sys
 
-from apscheduler.schedulers.blocking import BlockingScheduler
+import aiohttp
+import aioredis
 
-sched = BlockingScheduler()
+from dotenv import load_dotenv, dotenv_values
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../")
+from web.loader import LoadDocuments
+
+
+logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 logger = logging.getLogger(__name__)
 
-@sched.scheduled_job('interval', minutes=3)
-def timed_job():
-    logger.info('This job is run every three minutes.')
+load_dotenv(os.path.dirname(os.path.abspath(__file__)) + "/../.env")
 
-@sched.scheduled_job('cron', day_of_week='mon-fri', hour=10)
-def scheduled_job():
-    logger.info('This job is run every weekday at 5pm.')
+async def main():
+    redis = await aioredis.create_redis_pool(os.getenv("REDIS_URL"))
+    # print(await redis.get("last_work"))
+    val = datetime.datetime.now().strftime("%s")
 
-sched.start()
+    await redis.set("last_work", val)
+    if True:
+        async with aiohttp.ClientSession() as session:
+            for doc in LoadDocuments(count=10):
+                async with session.post(os.getenv('LNK'),
+                                        json=doc.dict(),
+                                        headers={'AUTHORIZATION': os.getenv('KEY')}) as resp:
+                    if resp.ok:
+                        await redis.lpush(os.getenv('LAST_DOC_KEY'), json.dumps(await resp.json()))
+                        await redis.ltrim(os.getenv('LAST_DOC_KEY'), 0, int(os.getenv('LAST_DOC_COUNT')))
+
+    dd = await redis.lrange(os.getenv('LAST_DOC_KEY'), 0, int(os.getenv('LAST_DOC_COUNT')))
+    print(dd)
+    redis.close()
+    await redis.wait_closed()
+
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())

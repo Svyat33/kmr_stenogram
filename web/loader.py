@@ -17,18 +17,24 @@ logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 logger = logging.getLogger(__name__)
 
 
-# logger.setLevel(logging.DEBUG)
+class SiteWalk:
+    def __init__(self):
+        self.__session = requests.session()
+
+    def get(self, *args, **kwargs):
+        return self.__session.get(*args, **kwargs)
 
 
 class LoadDocuments:
-    def __init__(self, count: int = 10):
+    def __init__(self, page_loader=None, count: int = 10):
+        self.__loader = page_loader or SiteWalk
         self.current_page = 0
         self.count = count
         self.__reset()
 
     def __reset(self):
         logger.debug("Reset iterator")
-        self.__session = requests.session()
+        self.__session = self.__loader()
         self.__page = None
 
     def current_link(self) -> str:

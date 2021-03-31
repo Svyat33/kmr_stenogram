@@ -2,7 +2,7 @@ flake:
 	flake8 web
 
 test:
-	pytest web
+	python -m pytest web
 
 clean:
 	rm -rf `find . -name __pycache__`
